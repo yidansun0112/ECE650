@@ -1,11 +1,13 @@
 #include <stddef.h>
+#include <stdlib.h>
+#include <unistd.h>
 
-typedef struct __Node{
-  struct Node * next;
-  int datasize;
-}Node;
+struct __Node{
+  struct __Node * next;
+  size_t datasize;
+};
 
-Node head;
+typedef struct __Node Node;
 
 void *ff_malloc(size_t size);
 void ff_free(void *ptr);
