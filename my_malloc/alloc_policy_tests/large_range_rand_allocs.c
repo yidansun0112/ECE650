@@ -3,7 +3,7 @@
 #include <time.h>
 #include "my_malloc.h"
 
-#define NUM_ITERS    50
+#define NUM_ITERS    1
 #define NUM_ITEMS    10000
 
 #ifdef FF
