@@ -30,7 +30,8 @@ void edit_lls(Node **temp,size_t size){
     del->next=NULL;                                         
     data_segment_free_size=data_segment_free_size-sizeof(Node)-del->datasize;
   }                                                         
-  else{                                                     
+  else{
+    Node *del=*temp;
     void *new_node=(void*)(*temp)+sizeof(Node)+size;        
     size_t new_datasize=(*temp)->datasize-sizeof(Node)-size;
     Node * next=(*temp)->next;                              
@@ -38,6 +39,7 @@ void edit_lls(Node **temp,size_t size){
     (*temp)->datasize=new_datasize;                         
     (*temp)->next=next;                                     
   data_segment_free_size=data_segment_free_size-sizeof(Node)-size;
+  del->datasize=size;
   }
 }
 
@@ -59,47 +61,14 @@ void *ff_malloc(size_t size){
 }
 
 void ff_free(void *ptr){
-  //add ptr into linkedlist
-  void * node_ptr=ptr-sizeof(Node);
-  Node * new_node=(Node*)node_ptr;
-  new_node->next=NULL;
-  data_segment_free_size=data_segment_free_size+sizeof(Node)+new_node->datasize;
-  if(head==NULL){
-    head=new_node;
-    return;
-  }
-  if(new_node<head){
-    new_node->next=head;
-    head=new_node;
-    return;
-  }
-  Node ** temp=&head;
-  while((*temp)->next!=NULL){
-    if(new_node==(void*)(*temp)+sizeof(Node)+(*temp)->datasize){
-      (*temp)->datasize+=new_node->datasize+sizeof(Node);
-      if((void*)(*temp)+sizeof(Node)+(*temp)->datasize==(*temp)->next){
-        (*temp)->next=(*temp)->next->next;
-      }
-      return;
-    }
-    if((void*)new_node+sizeof(Node)+new_node->datasize==(*temp)->next){
-      new_node->datasize+=sizeof(Node)+(*temp)->next->datasize;
-      new_node->next=(*temp)->next->next;
-      (*temp)->next=new_node;
-      return; 
-    }
-    if((void*)new_node+sizeof(Node)+new_node->datasize<(void*)(*temp)->next){
-      new_node->next=(*temp)->next;
-      (*temp)->next=new_node;
-      return;
-    }
-    temp=&(*temp)->next;
-  }
-  (*temp)->next=new_node;
-  new_node->next=NULL;
+  bf_free(ptr);
 }
                                  
 void *bf_malloc(size_t size){
+  if(head==NULL){
+   Node *ptr= call_sbrk(size);
+   return ptr+1;
+  }
   Node ** temp=&head;
   Node ** min=NULL;
   while(*temp!=NULL&&(*temp)->next!=NULL){  
@@ -118,6 +87,20 @@ void *bf_malloc(size_t size){
     }                                         
     temp=&(*temp)->next;                    
   }
+  
+  if((*temp)!=NULL){
+    if((*temp)->datasize>=size){                
+      if(min==NULL){                            
+        min=temp;                               
+      }                                         
+      else{                                     
+        if((*min)->datasize>(*temp)->datasize){ 
+          min=temp;                             
+        }                                       
+      }                                         
+    }
+  }
+  
   if(min!=NULL){
     void *ptr=(void*)(*min)+sizeof(Node);   
     edit_lls(min,size);                     
@@ -137,39 +120,38 @@ void bf_free(void *ptr){
     head=n;
     return;
   }
-  Node **temp=&head;
-  while((*temp)->next!=NULL){
-    void * end_of_temp=(void*)(*temp)+sizeof(Node)+(*temp)->datasize;
-    void * temp_next=(*temp)->next;
+  Node *temp=head;
+  while(temp->next!=NULL){
+    void * end_of_temp=(void*)temp+sizeof(Node)+temp->datasize;
+    void * temp_next=temp->next;
     //check whether in middle
     if(end_of_temp<=p&&p<=temp_next){
       //chech whether merge right
       if(end==temp_next){
         //merge right
-        n->next=(*temp)->next->next;
-        n->datasize=n->datasize+sizeof(Node)+(*temp)->next->datasize;
-        (*temp)->next=n;
+        n->next=temp->next->next;
+        n->datasize=n->datasize+sizeof(Node)+temp->next->datasize;
+        temp->next=n;
         //check whether merge left then
         if(end_of_temp==p){
-          (*temp)->datasize=(*temp)->datasize+sizeof(Node)+n->datasize;
-          (*temp)->next=n->next;
+          temp->datasize=temp->datasize+sizeof(Node)+n->datasize;
+          temp->next=n->next;
         }
       }
       else if(end_of_temp==p){
         //merge left
-        (*temp)->datasize=(*temp)->datasize+sizeof(Node)+n->datasize;
+        temp->datasize=temp->datasize+sizeof(Node)+n->datasize;
       }
       else{
-        n->next=(*temp)->next;
-        (*temp)->next=n;
+        n->next=temp->next;
+        temp->next=n;
       }
       return;
     }
-    if((*temp)->next!=NULL){       
-      temp=&(*temp)->next;         
-    }
-    (*temp)->next=n;
-    n->next=NULL;
+    temp=temp->next;
   }
-}
+    temp->next=n;
+    n->next=NULL;
+ }
+
                                  
