@@ -60,9 +60,9 @@ void *ff_malloc(size_t size){
   return ptr+1;
 }
 
-void ff_free(void *ptr){
-  bf_free(ptr);
-}
+
+
+
                                  
 void *bf_malloc(size_t size){
   if(head==NULL){
@@ -71,7 +71,7 @@ void *bf_malloc(size_t size){
   }
   Node ** temp=&head;
   Node ** min=NULL;
-  while(*temp!=NULL&&(*temp)->next!=NULL){  
+  while(*temp!=NULL){  
     if((*temp)->datasize>=size){            
       if(min==NULL){
         min=temp;
@@ -84,21 +84,11 @@ void *bf_malloc(size_t size){
       if((*min)->datasize==size){
         break;
       }
-    }                                         
-    temp=&(*temp)->next;                    
-  }
-  
-  if((*temp)!=NULL){
-    if((*temp)->datasize>=size){                
-      if(min==NULL){                            
-        min=temp;                               
-      }                                         
-      else{                                     
-        if((*min)->datasize>(*temp)->datasize){ 
-          min=temp;                             
-        }                                       
-      }                                         
     }
+    if((*temp)->next==NULL){ 
+      break;                 
+    }                        
+    temp=&(*temp)->next;                    
   }
   
   if(min!=NULL){
@@ -154,4 +144,6 @@ void bf_free(void *ptr){
     n->next=NULL;
  }
 
-                                 
+void ff_free(void *ptr){                                         
+  bf_free(ptr);                 
+}                               
