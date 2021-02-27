@@ -4,8 +4,25 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <vector>
+#include <arpa/inet.h>
+#include <stdlib.h>
 
 using namespace std;
+
+struct playerIdIpPort{
+  int id;
+  char ip[16];
+  unsigned int port;
+};
+
+class Potato{
+public:
+  int hops;
+  int players[550];
+
+  Potato():hops(0){}
+  Potato(int num):hops(num){}  
+};
 
 void checkArguementCount(int argc, int num){
   if(argc!=num){
@@ -134,27 +151,81 @@ int main(int argc, char *argv[])
 
   cout<<"Waiting for client to connect on port "<<port<<endl;
 
+  vector<struct playerIdIpPort> player(num_players);
+
   for(int i=0;i<num_players;i++){
     struct sockaddr_storage socket_addr;
     socklen_t socket_addr_len = sizeof(socket_addr);
     int client_connection_fd = accept(socket_fd, (struct sockaddr *)&socket_addr, &socket_addr_len);
-    int message[2]={i,num_players};
+    if(socket_addr.ss_family==AF_INET){
+      struct sockaddr_in *sa=(struct sockaddr_in *)&socket_addr;
+      inet_ntop(AF_INET,&(sa->sin_addr),player[i].ip,INET_ADDRSTRLEN);
+    }
+    else{
+      struct sockaddr_in6 *sa6=(struct sockaddr_in6 *)&socket_addr;
+      inet_ntop(AF_INET,&(sa6->sin6_addr),player[i].ip,INET6_ADDRSTRLEN);
+    }
+    player[i].id=i;
+    int message[3]={i,num_players,num_hops};
     socket_nums[i]=client_connection_fd;
-    send(socket_nums[i],message,2*sizeof(int),0);
-    cout<<"Player "<<i<<" connected"<<endl;
-  }
-
-  vector<struct sockaddr_in> socket_addrs(num_players);
-  for(int i=0;i<num_players;i++){
-    recv(socket_nums[i],&socket_addrs[i],sizeof(struct sockaddr_in),0);
+    send(socket_nums[i],message,3*sizeof(int),0);
+    cout<<"Player "<<i<<" is ready to play"<<endl;
   }
 
   for(int i=0;i<num_players;i++){
-    int left=(i-1)%3;
-    int right=(i+1)%3;
-    send(socket_nums[i],&socket_addrs[left],sizeof(struct sockaddr_in),0);
-    send(socket_nums[i],&socket_addrs[right],sizeof(struct sockaddr_in),0);
+    recv(socket_nums[i],&player[i].port,sizeof(unsigned int),0);
   }
+
+  for(int i=0;i<num_players;i++){
+    int left=(i-1+num_players)%num_players;
+    int right=(i+1)%num_players;
+    send(socket_nums[i],&player[left],sizeof(player[i]),0);
+    send(socket_nums[i],&player[right],sizeof(player[i]),0);
+  }
+
+  Potato *potato=new Potato(num_hops);
+  srand(1);
+  int random = rand() % num_players;
+
+  cout<<"Ready to start the game, sending potato to player "<<random<<endl;
+  send(socket_nums[random],potato,sizeof(Potato),0);
+
+  //select to receive last potato
+  struct timeval tv;
+  fd_set readfds;
+
+  tv.tv_sec = 100;
+  tv.tv_usec = 500000;
+
+  FD_ZERO(&readfds);
+  for(int i=0;i<num_players;i++){
+    FD_SET(socket_nums[i],&readfds);
+  }
+
+  // don't care about writefds and exceptfds:
+  select(socket_nums[num_players-1]+1, &readfds, NULL, NULL, &tv);
+
+  for(int i=0;i<num_players;i++){
+    if(FD_ISSET(socket_nums[i],&readfds)){
+      recv(socket_nums[i],potato,sizeof(*potato),0);
+      //cout<<"Potato received"<<endl;
+      break;
+    }
+  }
+
+  const char *end_messg="End!";
+  for(int i=0;i<num_players;i++){
+    send(socket_nums[i],end_messg,sizeof(end_messg),0);
+  }
+
+  cout<<"Trace of potato:"<<endl;
+  //cout<<potato->hops;
+  for(int i=num_hops-1;i>0;i--){
+    cout<<potato->players[i]<<",";
+  }
+
+  cout<<potato->players[0]<<endl;
+  
 
   close(socket_fd);
   return 0;
