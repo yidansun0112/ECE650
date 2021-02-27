@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
   int status=listen(socket_fd,100);
   checkListen(status,hostname,port);
 
-  cout<<"Waiting for client to connect on port "<<port<<endl;
+  //cout<<"Waiting for client to connect on port "<<port<<endl;
 
   vector<struct playerIdIpPort> player(num_players);
 
@@ -187,6 +187,14 @@ int main(int argc, char *argv[])
   srand(1);
   int random = rand() % num_players;
 
+  if(num_hops==0){
+    for(int i=0;i<num_players;i++){
+      send(socket_nums[random],potato,sizeof(Potato),0);
+      close(socket_fd);
+      return 0;
+    }
+  }
+
   cout<<"Ready to start the game, sending potato to player "<<random<<endl;
   send(socket_nums[random],potato,sizeof(Potato),0);
 
@@ -218,14 +226,13 @@ int main(int argc, char *argv[])
     send(socket_nums[i],end_messg,sizeof(end_messg),0);
   }
 
+  
   cout<<"Trace of potato:"<<endl;
   //cout<<potato->hops;
   for(int i=num_hops-1;i>0;i--){
     cout<<potato->players[i]<<",";
   }
-
   cout<<potato->players[0]<<endl;
-  
 
   close(socket_fd);
   return 0;

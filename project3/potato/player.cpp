@@ -26,6 +26,9 @@ public:
 void recvPotato(int socket,Potato* potato, int myId){
   recv(socket,potato,sizeof(*potato),0);
   potato->hops--;
+  if(potato->hops<0){
+    return;
+  }
   //cout<<"potato hops is "<<potato->hops<<endl;
   //cout<<"vector size is "<<potato->players.size()<<endl;
   int i=potato->hops;
@@ -200,7 +203,7 @@ int main(int argc, char *argv[])
   struct timeval tv;
   fd_set readfds;
 
-  tv.tv_sec = 2;
+  tv.tv_sec = 1;
   tv.tv_usec = 500000;
 
   FD_ZERO(&readfds);
@@ -211,20 +214,35 @@ int main(int argc, char *argv[])
   
   if(FD_ISSET(socket_master,&readfds)){
     recvPotato(socket_master,potato,myId);
-    if(potato->hops<=0){
+    if(potato->hops<0){
+      freeaddrinfo(host_info_list);
+      freeaddrinfo(player_info_list);
+      freeaddrinfo(left_info_list);
+      freeaddrinfo(right_info_list);
+
+      close(socket_master);
+      close(socket_player);
+      close(socket_left);
+      close(socket_right);
+
+      return 0;
+    }
+    else if(potato->hops==0){
       cout<<"I'm it"<<endl;
       send(socket_master,potato,sizeof(*potato),0);        
     }
-    int random=rand()%2;
-    int id;
-    if(random==0){
-      id=left.id;
-    }
     else{
-      id=right.id;
-    }
-    cout<<"Sending potato to "<<id<<endl;
-    send(socket_fds[random],potato,sizeof(*potato),0);  
+      int random=rand()%2;
+      int id;
+      if(random==0){
+        id=left.id;
+      }
+      else{
+        id=right.id;
+      }
+      cout<<"Sending potato to "<<id<<endl;
+      send(socket_fds[random],potato,sizeof(*potato),0);  
+    } 
   }
 
   while(true){
