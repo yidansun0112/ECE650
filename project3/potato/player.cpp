@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
   FD_SET(socket_master,&readfds);
   select(socket_master+1, &readfds, NULL, NULL, &tv);
 
-  srand(1);
+  srand((unsigned int)time(NULL)+myId);
   
   if(FD_ISSET(socket_master,&readfds)){
     recvPotato(socket_master,&potato,myId);
