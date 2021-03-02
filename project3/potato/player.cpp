@@ -11,7 +11,6 @@ void recvPotato(int socket,Potato* potato, int myId){
     return;
   }
   int i=potato->hops;
-  cout<<i<<endl;
   potato->players[i]=myId;
 }
 
@@ -38,7 +37,6 @@ int main(int argc, char *argv[])
 
   int myId=message[0];
   int hops=message[2];
-  cout<<hops<<endl;
 
   cout<<"Connected as player "<<message[0]<<" out of "<<message[1]<<" total players"<<endl;
 
@@ -80,10 +78,10 @@ int main(int argc, char *argv[])
   checkStatus(status,"Error: cannot connect to right socket");
 
 
-  //accept connections from two neighbours
+  //accept connections left neighbours
   struct sockaddr_storage socket_addr;
   socklen_t socket_addr_len = sizeof(socket_addr);
-  int  socket_left = accept(socket_player, (struct sockaddr *)&socket_addr, &socket_addr_len);
+  int socket_left = accept(socket_player, (struct sockaddr *)&socket_addr, &socket_addr_len);
 
   //try to receive potato from master
   Potato potato(hops);
@@ -116,13 +114,13 @@ int main(int argc, char *argv[])
       int id;
       if(random==0){
         id=left.id;
+        send(socket_left,&potato,sizeof(potato),0); 
       }
       else{
         id=right.id;
+        send(socket_right,&potato,sizeof(potato),0); 
       }
-      cout<<random<<" "<<id<<endl;
-      cout<<"Sending potato to "<<id<<endl;
-      send(socket_fds[random],&potato,sizeof(potato),0);  
+      cout<<"Sending potato to "<<id<<endl;       
     } 
   }
 
@@ -131,7 +129,7 @@ int main(int argc, char *argv[])
     FD_SET(socket_master,&readfds);
     FD_SET(socket_left,&readfds);
     FD_SET(socket_right,&readfds);
-    select(socket_right+1,&readfds,NULL,NULL,&tv);
+    select(socket_left+1,&readfds,NULL,NULL,&tv);
 
     if(FD_ISSET(socket_master,&readfds)){
       break;
@@ -151,13 +149,13 @@ int main(int argc, char *argv[])
         int id;
         if(random==0){
           id=left.id;
+          send(socket_left,&potato,sizeof(potato),0);
         }
         else{
           id=right.id;
+          send(socket_right,&potato,sizeof(potato),0);
         }
-        cout<<random<<" "<<id<<endl;
-        cout<<"Sending potato to "<<id<<endl;
-        send(socket_fds[random],&potato,sizeof(potato),0);
+        cout<<"Sending potato to "<<id<<endl;        
         continue;
       }
     }
@@ -176,13 +174,13 @@ int main(int argc, char *argv[])
         int id;
         if(random==0){
           id=left.id;
+          send(socket_left,&potato,sizeof(potato),0);
         }
         else{
           id=right.id;
+          send(socket_right,&potato,sizeof(potato),0);
         }
-        cout<<random<<" "<<id<<endl;
         cout<<"Sending potato to "<<id<<endl;
-        send(socket_fds[random],&potato,sizeof(potato),0);
         continue;
       }
     }
@@ -190,7 +188,6 @@ int main(int argc, char *argv[])
 
   freeaddrinfo(host_info_list);
   freeaddrinfo(player_info_list);
-  freeaddrinfo(left_info_list);
   freeaddrinfo(right_info_list);
   return 0;
 }
