@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
   int socket_right = loopHostInfo(right_info_list);
   
   status = connect(socket_right, right_info_list->ai_addr, right_info_list->ai_addrlen);
-  //checkStatus(status,"Error: cannot connect to right socket");
+  checkStatus(status,"Error: cannot connect to right socket");
 
   //accept connections left neighbours
   struct sockaddr_storage socket_addr;
@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
     FD_SET(socket_master,&readfds);
     FD_SET(socket_left,&readfds);
     FD_SET(socket_right,&readfds);
-    select(socket_right+1,&readfds,NULL,NULL,&tv);
+    select(socket_left+1,&readfds,NULL,NULL,&tv);
 
     if(FD_ISSET(socket_master,&readfds)){
       break;
