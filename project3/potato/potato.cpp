@@ -35,7 +35,8 @@ void checkNumPlayers(int num){
 
 void checkNumHops(int hops){
   if(hops<0||hops>512){
-    cerr<<"NUmber of hops must be greater than or equal to zero and less than or equal to 512."<<endl;
+    cerr<<"Number of hops must be greater than or equal to zero and less than or equal to 512."<<endl;
+    exit(EXIT_FAILURE);
   }
 }
 
