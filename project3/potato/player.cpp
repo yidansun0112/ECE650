@@ -59,27 +59,21 @@ int main(int argc, char *argv[])
   unsigned int myPort=ntohs(player_addr.sin_port);
   send(socket_master,&myPort,sizeof(myPort),0);
 
+  //Listen neighbor's connect
+  status=listen(socket_player,100);
+  checkStatus(status,"Error: Cannot listen on socket");
 
   struct playerIdIpPort left,right;
   recv(socket_master,&left,sizeof(left),0);
   recv(socket_master,&right,sizeof(right),0);
-
-  //Listen neighbor's connect
-  status=listen(socket_player,100);
-  checkStatus(status,"Error: Cannot listen on socket");
 
   //connect right neighbours
   stringstream ssr;
   ssr<<right.port;
   struct addrinfo * right_info_list=getAddrInfo(right.ip,ssr.str().c_str());
   int socket_right = loopHostInfo(right_info_list);
-  
-  while(true){
-    status = connect(socket_right, right_info_list->ai_addr, right_info_list->ai_addrlen);
-    if(status==0){
-      break;
-    }
-  }
+  status = connect(socket_right, right_info_list->ai_addr, right_info_list->ai_addrlen);
+  checkStatus(status,"Error: cannot connect to right neighbour");
   
 
   //accept connections left neighbours
