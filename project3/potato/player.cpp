@@ -2,7 +2,10 @@
 #include <sstream>
 
 void recvPotato(int socket,Potato* potato, int myId){
-  recv(socket,potato,sizeof(*potato),0);
+  int status=recv(socket,potato,sizeof(*potato),0);
+  if(status==0){
+    exit(EXIT_SUCCESS);
+  }
   potato->hops--;
   if(potato->hops<0){
     return;
@@ -147,7 +150,7 @@ int main(int argc, char *argv[])
     select(socket_right+1,&readfds,NULL,NULL,&tv);
 
     if(FD_ISSET(socket_master,&readfds)){
-      break;
+      return 0;
     }
     if(FD_ISSET(socket_left,&readfds)){
       recvPotato(socket_left,potato,myId);
