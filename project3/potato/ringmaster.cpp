@@ -9,8 +9,8 @@ int main(int argc, char *argv[])
   checkNumHops(num_hops);
 
   cout<<"Potato Ringmaster"<<endl;
-  cout<<"Players = <"<<num_players<<">"<<endl;
-  cout<<"Hops = <"<<num_hops<<">"<<endl;
+  cout<<"Players = "<<num_players<<endl;
+  cout<<"Hops = "<<num_hops<<endl;
   
   vector<int> socket_nums(num_players);
   const char *hostname = NULL;
