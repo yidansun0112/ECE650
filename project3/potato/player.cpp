@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
   recv(socket_master,&left,sizeof(left),0);
   recv(socket_master,&right,sizeof(right),0);
 
-  //Listen and accept neighbor's connect
+  //Listen neighbor's connect
   status=listen(socket_player,100);
   checkStatus(status,"Error: Cannot listen on socket");
 
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
   int socket_right = loopHostInfo(right_info_list);
   
   status = connect(socket_right, right_info_list->ai_addr, right_info_list->ai_addrlen);
-  //checkStatus(status,"Error: cannot connect to right socket");
+  checkStatus(status,"Error: cannot connect to right socket");
 
   //accept connections left neighbours
   struct sockaddr_storage socket_addr;
