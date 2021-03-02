@@ -74,8 +74,13 @@ int main(int argc, char *argv[])
   struct addrinfo * right_info_list=getAddrInfo(right.ip,ssr.str().c_str());
   int socket_right = loopHostInfo(right_info_list);
   
-  status = connect(socket_right, right_info_list->ai_addr, right_info_list->ai_addrlen);
-  checkStatus(status,"Error: cannot connect to right socket");
+  while(true){
+    status = connect(socket_right, right_info_list->ai_addr, right_info_list->ai_addrlen);
+    if(status==0){
+      break;
+    }
+  }
+  
 
   //accept connections left neighbours
   struct sockaddr_storage socket_addr;
