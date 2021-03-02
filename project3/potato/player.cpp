@@ -64,10 +64,14 @@ int main(int argc, char *argv[])
   recv(socket_master,&left,sizeof(left),0);
   recv(socket_master,&right,sizeof(right),0);
 
-  //Listen and accept two neighbor's connect
+  //Listen and accept neighbor's connect
   status=listen(socket_player,100);
   checkStatus(status,"Error: Cannot listen on socket");
-  
+  //accept connections left neighbours
+  struct sockaddr_storage socket_addr;
+  socklen_t socket_addr_len = sizeof(socket_addr);
+  int socket_left = accept(socket_player, (struct sockaddr *)&socket_addr, &socket_addr_len);
+
   //connect right neighbours
   stringstream ssr;
   ssr<<right.port;
@@ -77,11 +81,8 @@ int main(int argc, char *argv[])
   status = connect(socket_right, right_info_list->ai_addr, right_info_list->ai_addrlen);
   checkStatus(status,"Error: cannot connect to right socket");
 
-
-  //accept connections left neighbours
-  struct sockaddr_storage socket_addr;
-  socklen_t socket_addr_len = sizeof(socket_addr);
-  int socket_left = accept(socket_player, (struct sockaddr *)&socket_addr, &socket_addr_len);
+  const char * messg="Ready to play";
+  send(socket_master,messg,sizeof(*messg),0);
 
   //try to receive potato from master
   Potato potato(hops);
@@ -129,7 +130,7 @@ int main(int argc, char *argv[])
     FD_SET(socket_master,&readfds);
     FD_SET(socket_left,&readfds);
     FD_SET(socket_right,&readfds);
-    select(socket_left+1,&readfds,NULL,NULL,&tv);
+    select(socket_right+1,&readfds,NULL,NULL,&tv);
 
     if(FD_ISSET(socket_master,&readfds)){
       break;

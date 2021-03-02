@@ -42,7 +42,6 @@ int main(int argc, char *argv[])
     int message[3]={i,num_players,num_hops};
     socket_nums[i]=client_connection_fd;
     send(socket_nums[i],message,3*sizeof(int),0);
-    cout<<"Player "<<i<<" is ready to play"<<endl;
   }
 
   for(int i=0;i<num_players;i++){
@@ -54,6 +53,12 @@ int main(int argc, char *argv[])
     int right=(i+1)%num_players;
     send(socket_nums[i],&player[left],sizeof(player[i]),0);
     send(socket_nums[i],&player[right],sizeof(player[i]),0);
+  }
+
+  for(int i=0;i<num_players;i++){
+    char message[20];
+    recv(socket_nums[i],message,sizeof(*message),0);
+    cout<<"Player "<<i<<" is ready to play"<<endl;
   }
 
   Potato potato(num_hops);
