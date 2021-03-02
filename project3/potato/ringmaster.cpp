@@ -55,20 +55,21 @@ int main(int argc, char *argv[])
     send(socket_nums[i],&player[right],sizeof(player[i]),0);
   }
 
-  Potato *potato=new Potato(num_hops);
+  Potato potato(num_hops);
+  memset(potato.players,0,sizeof(potato.players));
   srand(1);
   int random = rand() % num_players;
 
   if(num_hops==0){
     for(int i=0;i<num_players;i++){
-      send(socket_nums[random],potato,sizeof(Potato),0);
-      close(socket_fd);
-      return 0;
+      send(socket_nums[i],&potato,sizeof(Potato),0);
     }
+    close(socket_fd);
+    return 0;
   }
 
   cout<<"Ready to start the game, sending potato to player "<<random<<endl;
-  send(socket_nums[random],potato,sizeof(Potato),0);
+  send(socket_nums[random],&potato,sizeof(Potato),0);
 
   //select to receive last potato
   struct timeval tv;
@@ -87,22 +88,21 @@ int main(int argc, char *argv[])
 
   for(int i=0;i<num_players;i++){
     if(FD_ISSET(socket_nums[i],&readfds)){
-      recv(socket_nums[i],potato,sizeof(*potato),0);
+      recv(socket_nums[i],&potato,sizeof(potato),0);
       //cout<<"Potato received"<<endl;
       break;
     }
   }
 
-  const char *end_messg="End!";
   for(int i=0;i<num_players;i++){
-    send(socket_nums[i],end_messg,sizeof(end_messg),0);
+    send(socket_nums[i],&potato,sizeof(Potato),0);
   }
   
   cout<<"Trace of potato:"<<endl;
   for(int i=num_hops-1;i>0;i--){
-    cout<<potato->players[i]<<",";
+    cout<<potato.players[i]<<",";
   }
-  cout<<potato->players[0]<<endl;
+  cout<<potato.players[0]<<endl;
 
   close(socket_fd);
   return 0;

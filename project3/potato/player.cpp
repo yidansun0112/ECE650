@@ -11,6 +11,7 @@ void recvPotato(int socket,Potato* potato, int myId){
     return;
   }
   int i=potato->hops;
+  cout<<i<<endl;
   potato->players[i]=myId;
 }
 
@@ -32,10 +33,12 @@ int main(int argc, char *argv[])
   checkStatus(status,hostname,port,"Error: Cannot connect to socket");
 
   int message[3]={0};
+  memset(message, 0, sizeof(*message));
   recv(socket_master, message, 3*sizeof(int), 0);
 
   int myId=message[0];
   int hops=message[2];
+  cout<<hops<<endl;
 
   cout<<"Connected as player "<<message[0]<<" out of "<<message[1]<<" total players"<<endl;
 
@@ -67,17 +70,7 @@ int main(int argc, char *argv[])
   status=listen(socket_player,100);
   checkStatus(status,"Error: Cannot listen on socket");
   
-  //connect two neighbours
-  //left
-  stringstream ssl;
-  ssl<<left.port;
-  struct addrinfo * left_info_list=getAddrInfo(left.ip,ssl.str().c_str());
-  int socket_left = loopHostInfo(left_info_list);
-  
-  status = connect(socket_left, left_info_list->ai_addr, left_info_list->ai_addrlen);
-  checkStatus(status,"Error: cannot connect to left socket");
-
-  //right
+  //connect right neighbours
   stringstream ssr;
   ssr<<right.port;
   struct addrinfo * right_info_list=getAddrInfo(right.ip,ssr.str().c_str());
@@ -88,15 +81,12 @@ int main(int argc, char *argv[])
 
 
   //accept connections from two neighbours
-  int socket_fds[2];
-  for(int i=0;i<2;i++){
-    struct sockaddr_storage socket_addr;
-    socklen_t socket_addr_len = sizeof(socket_addr);
-    socket_fds[i] = accept(socket_player, (struct sockaddr *)&socket_addr, &socket_addr_len);
-  }
+  struct sockaddr_storage socket_addr;
+  socklen_t socket_addr_len = sizeof(socket_addr);
+  int  socket_left = accept(socket_player, (struct sockaddr *)&socket_addr, &socket_addr_len);
 
   //try to receive potato from master
-  Potato *potato=new Potato(hops);
+  Potato potato(hops);
   struct timeval tv;
   fd_set readfds;
 
@@ -110,23 +100,16 @@ int main(int argc, char *argv[])
   srand(1);
   
   if(FD_ISSET(socket_master,&readfds)){
-    recvPotato(socket_master,potato,myId);
-    if(potato->hops<0){
-      // freeaddrinfo(host_info_list);
-      // freeaddrinfo(player_info_list);
-      // freeaddrinfo(left_info_list);
-      // freeaddrinfo(right_info_list);
-
-      // close(socket_master);
-      // close(socket_player);
-      // close(socket_left);
-      // close(socket_right);
-
+    recvPotato(socket_master,&potato,myId);
+    if(potato.hops<0){
+      freeaddrinfo(host_info_list);
+      freeaddrinfo(player_info_list);
+      freeaddrinfo(right_info_list);
       return 0;
     }
-    else if(potato->hops==0){
+    else if(potato.hops==0){
       cout<<"I'm it"<<endl;
-      send(socket_master,potato,sizeof(*potato),0);        
+      send(socket_master,&potato,sizeof(potato),0);        
     }
     else{
       int random=rand()%2;
@@ -137,8 +120,9 @@ int main(int argc, char *argv[])
       else{
         id=right.id;
       }
+      cout<<random<<" "<<id<<endl;
       cout<<"Sending potato to "<<id<<endl;
-      send(socket_fds[random],potato,sizeof(*potato),0);  
+      send(socket_fds[random],&potato,sizeof(potato),0);  
     } 
   }
 
@@ -150,16 +134,16 @@ int main(int argc, char *argv[])
     select(socket_right+1,&readfds,NULL,NULL,&tv);
 
     if(FD_ISSET(socket_master,&readfds)){
-      return 0;
+      break;
     }
     if(FD_ISSET(socket_left,&readfds)){
-      recvPotato(socket_left,potato,myId);
-      if(potato->hops<0){
+      recvPotato(socket_left,&potato,myId);
+      if(potato.hops<0){
         break;
       }
-      else if(potato->hops==0){
+      else if(potato.hops==0){
         cout<<"I'm it"<<endl;
-        send(socket_master,potato,sizeof(*potato),0);
+        send(socket_master,&potato,sizeof(potato),0);
         continue;
       }
       else{
@@ -171,19 +155,20 @@ int main(int argc, char *argv[])
         else{
           id=right.id;
         }
+        cout<<random<<" "<<id<<endl;
         cout<<"Sending potato to "<<id<<endl;
-        send(socket_fds[random],potato,sizeof(*potato),0);
+        send(socket_fds[random],&potato,sizeof(potato),0);
         continue;
       }
     }
     if(FD_ISSET(socket_right,&readfds)){
-      recvPotato(socket_right,potato,myId);
-      if(potato->hops<0){
+      recvPotato(socket_right,&potato,myId);
+      if(potato.hops<0){
         break;
       }
-      else if(potato->hops==0){
+      else if(potato.hops==0){
         cout<<"I'm it"<<endl;
-        send(socket_master,potato,sizeof(*potato),0);
+        send(socket_master,&potato,sizeof(potato),0);
         continue;
       }
       else{
@@ -195,24 +180,17 @@ int main(int argc, char *argv[])
         else{
           id=right.id;
         }
+        cout<<random<<" "<<id<<endl;
         cout<<"Sending potato to "<<id<<endl;
-        send(socket_fds[random],potato,sizeof(*potato),0);
+        send(socket_fds[random],&potato,sizeof(potato),0);
         continue;
       }
     }
   }
 
-  delete potato;
-
   freeaddrinfo(host_info_list);
   freeaddrinfo(player_info_list);
   freeaddrinfo(left_info_list);
   freeaddrinfo(right_info_list);
-
-  close(socket_master);
-  close(socket_player);
-  close(socket_left);
-  close(socket_right);
-
   return 0;
 }
