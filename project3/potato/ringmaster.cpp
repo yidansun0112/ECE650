@@ -37,7 +37,6 @@ int main(int argc, char *argv[])
       struct sockaddr_in6 *sa6=(struct sockaddr_in6 *)&socket_addr;
       inet_ntop(AF_INET,&(sa6->sin6_addr),player[i].ip,INET6_ADDRSTRLEN);
     }
-    cout<<player[i].ip<<endl;
     player[i].id=i;
     int message[3]={i,num_players,num_hops};
     socket_nums[i]=client_connection_fd;
@@ -95,7 +94,6 @@ int main(int argc, char *argv[])
   for(int i=0;i<num_players;i++){
     if(FD_ISSET(socket_nums[i],&readfds)){
       recv(socket_nums[i],&potato,sizeof(potato),0);
-      //cout<<"Potato received"<<endl;
       break;
     }
   }
