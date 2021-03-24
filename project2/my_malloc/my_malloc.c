@@ -3,8 +3,6 @@
 
 Node * head=NULL;
 __thread Node* head_nolock=NULL;
-//unsigned long data_segment_size=0;
-//unsigned long data_segment_free_size=0;
 pthread_mutex_t lock=PTHREAD_MUTEX_INITIALIZER;
 
 

@@ -7,9 +7,9 @@
 
 using namespace std;
 
-void checkArguementCount(int argc){
-  if(argc!=4){
-    cerr<<"ringmatser <post_num> <num_players> <num_hops>"<<endl;
+void checkArguementCount(int argc, int num){
+  if(argc!=num){
+    cerr<<"Syntax: ringmatser <post_num> <num_players> <num_hops>"<<endl;
     exit(EXIT_FAILURE);
   }
 }
@@ -130,7 +130,7 @@ void closeSockets(vector<int> socket_nums,int num_players){
 
 int main(int argc, char *argv[])
 {
-  checkArguementCount(argc);
+  checkArguementCount(argc,4);
   int num_players=atoi(argv[2]);
   checkNumPlayers(num_players);
   int num_hops=atoi(argv[3]);
