@@ -104,7 +104,8 @@ int main(int argc, char *argv[])
       freeaddrinfo(host_info_list);
       freeaddrinfo(player_info_list);
       freeaddrinfo(right_info_list);
-      return 0;
+
+     return 0;
     }
     else if(potato.hops==0){
       cout<<"I'm it"<<endl;
