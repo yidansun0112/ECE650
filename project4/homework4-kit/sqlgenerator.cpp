@@ -1,4 +1,4 @@
-#include sqlgenerator.h
+#include "sqlgenerator.h"
 
 string Sqlgenerator::getDrop(){
   string dropHeader="DROP TABLE IF EXISTS";
@@ -12,12 +12,28 @@ string Sqlgenerator::getDrop(){
 }
 
 string Sqlgenerator::getCreatePlayer(){
-
+  string header="CREATE TABLE PLAYER\n(";
+  string ender=");\n";
+  string player_id="PLAYER_ID SERIAL NOT NULL,\n";
+  string team_id="TEAM_ID INT,\n";
+  string uniform_num="UNIFORM_NUM INT,\n";
+  string first_name="FIRST_NAME VARCHAR(50),\n";
+  string last_name="LAST_NAME VARCHAR(50),\n";
+  string mpg="MAG INT,\n";
+  string ppg="PPG INT,\n";
+  string rpg="RPG INT,\n";
+  string apg="APG INT,\n";
+  string spg="SPG FLOAT,\n";
+  string bpg="BPG FLOAT,\n";
+  string primary_key="CONSTRAINT PLAYPK PRIMARY KEY(PLAYER_ID),\n";
+  string foreign_key_team="CONSTRAINT TMIDFK FOREIGN KEY(TEAM_ID) REFERENCES TEAM(TEAM_ID) ON DELETE SET NULL ON UPDATE CASCADE\n";
+  string total=header+player_id+team_id+uniform_num+first_name+last_name+mpg+ppg+rpg+apg+spg+bpg+primary_key+foreign_key_team+ender;
+  return total;
 }
 string Sqlgenerator::getCreateTeam(){
-  string header="CREATE TABLE TEAM\n"+"(";
+  string header="CREATE TABLE TEAM\n(";
   string ender=");\n";
-  string team_id="TEAM_ID INT NOT NULL,\n";
+  string team_id="TEAM_ID SERIAL NOT NULL,\n";
   string name="NAME VARCHAR(50),\n";
   string state_id="STATE_ID INT,\n";
   string color_id="COLOR_ID INT,\n";
@@ -30,9 +46,9 @@ string Sqlgenerator::getCreateTeam(){
   return total;
 }
 string Sqlgenerator::getCreateState(){
-  string header="CREATE TABLE STATE\n"+"(";
+  string header="CREATE TABLE STATE\n(";
   string ender=");\n";
-  string state_id="STATE_ID INT NOT NULL,\n";
+  string state_id="STATE_ID SERIAL NOT NULL,\n";
   string name="NAME VARCHAR(50),\n";
   string primary_key="CONSTRAINT STATEIDPK PRIMARY KEY(STATE_ID)\n";
   string total=header+state_id+name+primary_key+ender;
@@ -40,9 +56,9 @@ string Sqlgenerator::getCreateState(){
 }
 
 string Sqlgenerator::getCreateColor(){
-  string header="CREATE TABLE COLOR\n"+"(";
+  string header="CREATE TABLE COLOR\n(";
   string ender=");\n";
-  string color_id="COLOR_ID INT NOT NULL,\n";
+  string color_id="COLOR_ID SERIAL NOT NULL,\n";
   string name="NAME VARCHAR(50),\n";
   string primary_key="CONSTRAINT COLORIDPK PRIMARY KEY(COLOR_ID)\n";
   string total=header+color_id+name+primary_key+ender;
@@ -50,5 +66,11 @@ string Sqlgenerator::getCreateColor(){
 }
 
 string Sqlgenerator::getCreateTable(){
-
+  string drop=getDrop();
+  string state=getCreateState();
+  string color=getCreateColor();
+  string team=getCreateTeam();
+  string player=getCreatePlayer();
+  string total=drop+state+color+team+player;
+  return total;
 }

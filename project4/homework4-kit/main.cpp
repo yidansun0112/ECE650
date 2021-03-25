@@ -2,9 +2,18 @@
 #include <pqxx/pqxx>
 
 #include "exerciser.h"
+#include "sqlgenerator.h"
 
 using namespace std;
 using namespace pqxx;
+
+void createTables(connection *c){
+  Sqlgenerator sql;
+  string total=sql.getCreateTable();
+  work W(*c);
+  W.exec(total);
+  W.commit();
+}
 
 int main (int argc, char *argv[]) 
 {
@@ -31,8 +40,8 @@ int main (int argc, char *argv[])
   //TODO: create PLAYER, TEAM, STATE, and COLOR tables in the ACC_BBALL database
   //      load each table with rows from the provided source txt files
 
-
-  exercise(C);
+  createTables(C);
+  //exercise(C);
 
 
   //Close database connection

@@ -4,21 +4,58 @@
 void add_player(connection *C, int team_id, int jersey_num, string first_name, string last_name,
                 int mpg, int ppg, int rpg, int apg, double spg, double bpg)
 {
+  stringstream ss;
+  work W(*C);
+  string header="INSERT INTO PLAYER (TEAM_ID,UNIFORM_NUM,FIRST_NAME,LAST_NAME,MPG,PPG,APG,SPG,BPG) VALUES(";
+  ss<<header;
+  ss<<team_id<<",";
+  ss<<jersey_num<<",";
+  ss<<W.quote(first_name)<<",";
+  ss<<W.quote(last_name)<<",";
+  ss<<mpg<<",";
+  ss<<ppg<<",";
+  ss<<rpg<<",";
+  ss<<apg<<",";
+  ss<<spg<<",";
+  ss<<bpg<<");\n";
+  string command=ss.str();
+  W.exec(command);
+  W.commit();
 }
 
 
 void add_team(connection *C, string name, int state_id, int color_id, int wins, int losses)
 {
+  stringstream ss;
+  work W(*C);
+  string header="INSERT INTO TEAM(NAME,STATE_ID,COLOR_ID,WINS,LOSSES) VALUES(";
+  ss<<header;
+  ss<<W.quote(name)+",";
+  ss<<state_id+",";
+  ss<<color_id<<",";
+  ss<<wins<<",";
+  ss<<losses<<");\n";
+  string command=ss.str();
+  W.exec(command);
+  W.commit();
 }
 
 
 void add_state(connection *C, string name)
 {
+  work W(*C);
+  string command="INSERT INTO STATE(NAME) VALUES("+W.quote(name)+");\n";
+  W.exec(command);
+  W.commit();
 }
 
 
 void add_color(connection *C, string name)
 {
+  work W(*C);
+  string command="INSERT INTO COLOR(NAME) VALUES("+W.quote(name)+");\n";
+  W.exec(command);
+  W.commit();
 }
 
 
