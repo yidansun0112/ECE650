@@ -19,7 +19,7 @@ string Sqlgenerator::getCreatePlayer(){
   string uniform_num="UNIFORM_NUM INT,\n";
   string first_name="FIRST_NAME VARCHAR(50),\n";
   string last_name="LAST_NAME VARCHAR(50),\n";
-  string mpg="MAG INT,\n";
+  string mpg="MPG INT,\n";
   string ppg="PPG INT,\n";
   string rpg="RPG INT,\n";
   string apg="APG INT,\n";
