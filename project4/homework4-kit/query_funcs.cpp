@@ -130,6 +130,7 @@ void query2(connection *C, string team_color)
   ss<<W.quote(team_color);
   ss<<";\n";
   string command=ss.str();
+  W.commit();
   nontransaction N(*C);
   result R(N.exec(command));
   print_q2(R);
@@ -150,8 +151,10 @@ void query3(connection *C, string team_name)
   ss<<W.quote(team_name);
   ss<<" ORDER BY PPG DESC;\n";
   string command=ss.str();
+  W.commit();
   nontransaction N(*C);
   result R(N.exec(command));
+  print_q3(R);
 }
 
 void print_q3(result R){
@@ -172,6 +175,7 @@ void query4(connection *C, string team_state, string team_color)
   work W(*C);
   ss<<"STATE.NAME="<<W.quote(team_state);
   ss<<" AND COLOR.NAME="<<W.quote(team_color)<<";\n";
+  W.commit();
   string command=ss.str();
   nontransaction N(*C);
   result R(N.exec(command));
@@ -191,7 +195,7 @@ void query5(connection *C, int num_wins)
 {
   stringstream ss;
   ss<<"SELECT FIRST_NAME,LAST_NAME,TEAM.NAME,WINS FROM PLAYER,TEAM WHERE ";
-  ss<<"TEAM.TEAM_ID=PLAYER.TEAM_ID AND TEAM.WINS="<<num_wins<<";\n";
+  ss<<"TEAM.TEAM_ID=PLAYER.TEAM_ID AND TEAM.WINS>"<<num_wins<<";\n";
   string command=ss.str();
   nontransaction N(*C);
   result R(N.exec(command));
