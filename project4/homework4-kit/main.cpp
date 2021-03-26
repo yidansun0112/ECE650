@@ -111,7 +111,7 @@ int main (int argc, char *argv[])
   addColors(C);
   addTeams(C);
   addPlayers(C);
-  //exercise(C);
+  exercise(C);
 
 
   //Close database connection

@@ -35,4 +35,12 @@ void query4(connection *C, string team_state, string team_color);
 
 void query5(connection *C, int num_wins);
 
+void checkUse(stringstream &ss, int use, int min, int max, int &num, string name);
+void checkUse(stringstream &ss, int use, double min, double max, int &num, string name);
+void print_q1(result R);
+void print_q2(result R);
+void print_q3(result R);
+void print_q4(result R);
+void print_q5(result R);
+
 #endif //_QUERY_FUNCS_

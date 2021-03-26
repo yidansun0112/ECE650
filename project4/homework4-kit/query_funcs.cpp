@@ -68,24 +68,142 @@ void query1(connection *C,
             int use_bpg, double min_bpg, double max_bpg
             )
 {
+  stringstream ss;
+  ss<<"SELECT * FROM PLAYER WHERE ";
+  int num=0;
+  checkUse(ss,use_mpg,min_mpg,max_mpg,num,"MPG");
+  checkUse(ss,use_ppg,min_ppg,max_ppg,num,"PPG");
+  checkUse(ss,use_rpg,min_rpg,max_rpg,num,"RPG");
+  checkUse(ss,use_apg,min_apg,max_apg,num,"APG");
+  checkUse(ss,use_spg,min_spg,max_spg,num,"SPG");
+  checkUse(ss,use_bpg,min_bpg,max_bpg,num,"BPG");
+  ss<<";\n";
+  string command=ss.str();
+  cout<<command;
+  nontransaction N(*C);
+  result R(N.exec(command));
+  print_q1(R);
 }
 
+void print_q1(result R){
+  cout<<"PLAYER_ID TEAM_ID UNIFORM_NUM FIRST_NAME LAST_NAME MPG PPG RPG APG SPG BPG\n";
+  for(result::const_iterator r=R.begin();r!=R.end();++r){
+    cout << r[0].as<int>() << " ";
+    cout << r[1].as<int>() << " ";
+    cout << r[2].as<int>() << " ";
+    cout << r[3].as<string>() << " ";
+    cout << r[4].as<string>() << " ";
+    cout << r[5].as<int>() << " ";
+    cout << r[6].as<int>() << " ";
+    cout << r[7].as<int>() << " ";
+    cout << r[8].as<int>() << " ";
+    cout << fixed << setprecision(1) << r[9].as<double>() << " ";
+    cout << fixed << setprecision(1) << r[10].as<double>() << endl;
+  }
+}
+
+void checkUse(stringstream &ss, int use, int min, int max, int &num,string name){
+  if(use){
+    if(num>0){
+      ss<<" AND ";
+    }
+    ss<<"("<<name<<" BETWEEN "<<min<<" AND "<<max<<")";
+    num++;
+  }
+}
+
+void checkUse(stringstream &ss, int use, double min, double max, int &num,string name){
+  if(use){
+    if(num>0){
+      ss<<" AND ";
+    }
+    ss<<"("<<name<<" BETWEEN "<<min<<" AND "<<max<<")";
+    num++;
+  }
+}
 
 void query2(connection *C, string team_color)
 {
+  stringstream ss;
+  ss<<"SELECT TEAM.NAME FROM TEAM,COLOR WHERE COLOR.COLOR_ID=TEAM.COLOR_ID AND COLOR.NAME=";
+  work W(*C);
+  ss<<W.quote(team_color);
+  ss<<";\n";
+  string command=ss.str();
+  nontransaction N(*C);
+  result R(N.exec(command));
+  print_q2(R);
 }
 
+void print_q2(result R){
+  cout<<"NAME"<<endl;
+  for(result::const_iterator r=R.begin();r!=R.end();++r){
+    cout << r[0].as<string>() << endl;
+  }
+}
 
 void query3(connection *C, string team_name)
 {
+  stringstream ss;
+  ss<<"SELECT FIRST_NAME,LAST_NAME FROM PLAYER, TEAM WHERE TEAM.TEAM_ID=PLAYER.TEAM_ID AND TEAM.NAME=";
+  work W(*C);
+  ss<<W.quote(team_name);
+  ss<<" ORDER BY PPG DESC;\n";
+  string command=ss.str();
+  nontransaction N(*C);
+  result R(N.exec(command));
 }
 
+void print_q3(result R){
+  cout<<"FIRST_NAME LAST_NAME"<<endl;
+  for(result::const_iterator r=R.begin();r!=R.end();++r){
+    cout << r[0].as<string>() << " ";
+    cout << r[1].as<string>() << endl;
+  }
+}
 
 void query4(connection *C, string team_state, string team_color)
 {
+  stringstream ss;
+  ss<<"SELECT FIRST_NAME,LAST_NAME,UNIFORM_NUM FROM PLAYER,STATE,COLOR,TEAM WHERE ";
+  ss<<"STATE.STATE_ID=TEAM.STATE_ID";
+  ss<<" AND COLOR.COLOR_ID=TEAM.COLOR_ID";
+  ss<<" AND PLAYER.TEAM_ID=TEAM.TEAM_ID AND ";
+  work W(*C);
+  ss<<"STATE.NAME="<<W.quote(team_state);
+  ss<<" AND COLOR.NAME="<<W.quote(team_color)<<";\n";
+  string command=ss.str();
+  nontransaction N(*C);
+  result R(N.exec(command));
+  print_q4(R);
 }
 
+void print_q4(result R){
+  cout<<"FIRST_NAME LAST_NAME UNIFORM_NUM"<<endl;
+  for (result::const_iterator r = R.begin(); r != R.end(); ++r) {
+    cout << r[0].as<string>() << " ";
+    cout << r[1].as<string>() << " ";
+    cout << r[2].as<int>() << endl;
+  }
+}
 
 void query5(connection *C, int num_wins)
 {
+  stringstream ss;
+  ss<<"SELECT FIRST_NAME,LAST_NAME,TEAM.NAME,WINS FROM PLAYER,TEAM WHERE ";
+  ss<<"TEAM.TEAM_ID=PLAYER.TEAM_ID AND TEAM.WINS="<<num_wins<<";\n";
+  string command=ss.str();
+  nontransaction N(*C);
+  result R(N.exec(command));
+  print_q5(R);
+}
+
+void print_q5(result R){
+  std::cout << "FIRST_NAME LAST_NAME NAME WINS"<<endl;
+  for (result::const_iterator r = R.begin(); r != R.end(); ++r) {
+    cout << r[0].as<string>() << " ";
+    cout << r[1].as<string>() << " ";
+    cout << r[2].as<string>() << " ";
+    cout << r[3].as<int>() << endl;
+  }
 }
