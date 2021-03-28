@@ -79,7 +79,6 @@ void query1(connection *C,
   checkUse(ss,use_bpg,min_bpg,max_bpg,num,"BPG");
   ss<<";\n";
   string command=ss.str();
-  cout<<command;
   nontransaction N(*C);
   result R(N.exec(command));
   print_q1(R);
@@ -87,16 +86,18 @@ void query1(connection *C,
 
 void print_q1(result R){
   cout<<"PLAYER_ID TEAM_ID UNIFORM_NUM FIRST_NAME LAST_NAME MPG PPG RPG APG SPG BPG\n";
-  for(result::const_iterator r=R.begin();r!=R.end();++r){
-    cout << r[0].as<int>() << " ";
-    cout << r[1].as<int>() << " ";
-    cout << r[2].as<int>() << " ";
-    cout << r[3].as<string>() << " ";
-    cout << r[4].as<string>() << " ";
-    cout << r[5].as<int>() << " ";
-    cout << r[6].as<int>() << " ";
-    cout << r[7].as<int>() << " ";
-    cout << r[8].as<int>() << " ";
+  int size=R.size();
+  for(int i=0;i<size;i++){
+    pqxx::row const r=R[i];
+    cout << r[0] << " ";
+    cout << r[1] << " ";
+    cout << r[2]<< " ";
+    cout << r[3]<< " ";
+    cout << r[4] << " ";
+    cout << r[5] << " ";
+    cout << r[6]<< " ";
+    cout << r[7]<< " ";
+    cout << r[8] << " ";
     cout << fixed << setprecision(1) << r[9].as<double>() << " ";
     cout << fixed << setprecision(1) << r[10].as<double>() << endl;
   }
@@ -138,7 +139,9 @@ void query2(connection *C, string team_color)
 
 void print_q2(result R){
   cout<<"NAME"<<endl;
-  for(result::const_iterator r=R.begin();r!=R.end();++r){
+  int size=R.size();
+  for(int i=0;i<size;i++){
+    pqxx::row const r=R[i];
     cout << r[0].as<string>() << endl;
   }
 }
@@ -159,9 +162,11 @@ void query3(connection *C, string team_name)
 
 void print_q3(result R){
   cout<<"FIRST_NAME LAST_NAME"<<endl;
-  for(result::const_iterator r=R.begin();r!=R.end();++r){
-    cout << r[0].as<string>() << " ";
-    cout << r[1].as<string>() << endl;
+  int size=R.size();
+  for(int i=0;i<size;i++){
+    pqxx::row const r=R[i];
+    cout << r[0]<< " ";
+    cout << r[1]<< endl;
   }
 }
 
@@ -184,10 +189,12 @@ void query4(connection *C, string team_state, string team_color)
 
 void print_q4(result R){
   cout<<"FIRST_NAME LAST_NAME UNIFORM_NUM"<<endl;
-  for (result::const_iterator r = R.begin(); r != R.end(); ++r) {
-    cout << r[0].as<string>() << " ";
-    cout << r[1].as<string>() << " ";
-    cout << r[2].as<int>() << endl;
+  int size=R.size();
+  for(int i=0;i<size;i++){
+    pqxx::row const r=R[i];
+    cout << r[0]<< " ";
+    cout << r[1]<< " ";
+    cout << r[2]<< endl;
   }
 }
 
@@ -204,10 +211,12 @@ void query5(connection *C, int num_wins)
 
 void print_q5(result R){
   std::cout << "FIRST_NAME LAST_NAME NAME WINS"<<endl;
-  for (result::const_iterator r = R.begin(); r != R.end(); ++r) {
-    cout << r[0].as<string>() << " ";
-    cout << r[1].as<string>() << " ";
-    cout << r[2].as<string>() << " ";
-    cout << r[3].as<int>() << endl;
+  int size=R.size();
+  for(int i=0;i<size;i++){
+    pqxx::row const r=R[i];
+    cout << r[0]<< " ";
+    cout << r[1]<< " ";
+    cout << r[2]<< " ";
+    cout << r[3]<< endl;
   }
 }
