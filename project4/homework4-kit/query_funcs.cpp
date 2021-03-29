@@ -87,8 +87,7 @@ void query1(connection *C,
 void print_q1(result R){
   cout<<"PLAYER_ID TEAM_ID UNIFORM_NUM FIRST_NAME LAST_NAME MPG PPG RPG APG SPG BPG\n";
   int size=R.size();
-  for(int i=0;i<size;i++){
-    pqxx::row const r=R[i];
+  for(result::const_iterator r=R.begin();r!=R.end();++r){
     cout << r[0] << " ";
     cout << r[1] << " ";
     cout << r[2]<< " ";
@@ -140,8 +139,7 @@ void query2(connection *C, string team_color)
 void print_q2(result R){
   cout<<"NAME"<<endl;
   int size=R.size();
-  for(int i=0;i<size;i++){
-    pqxx::row const r=R[i];
+  for(result::const_iterator r=R.begin();r!=R.end();++r){
     cout << r[0].as<string>() << endl;
   }
 }
@@ -163,8 +161,7 @@ void query3(connection *C, string team_name)
 void print_q3(result R){
   cout<<"FIRST_NAME LAST_NAME"<<endl;
   int size=R.size();
-  for(int i=0;i<size;i++){
-    pqxx::row const r=R[i];
+  for(result::const_iterator r=R.begin();r!=R.end();++r){
     cout << r[0]<< " ";
     cout << r[1]<< endl;
   }
@@ -190,8 +187,7 @@ void query4(connection *C, string team_state, string team_color)
 void print_q4(result R){
   cout<<"FIRST_NAME LAST_NAME UNIFORM_NUM"<<endl;
   int size=R.size();
-  for(int i=0;i<size;i++){
-    pqxx::row const r=R[i];
+  for(result::const_iterator r=R.begin();r!=R.end();++r){
     cout << r[0]<< " ";
     cout << r[1]<< " ";
     cout << r[2]<< endl;
@@ -212,11 +208,11 @@ void query5(connection *C, int num_wins)
 void print_q5(result R){
   std::cout << "FIRST_NAME LAST_NAME NAME WINS"<<endl;
   int size=R.size();
-  for(int i=0;i<size;i++){
-    pqxx::row const r=R[i];
+  for(result::const_iterator r=R.begin();r!=R.end();++r){
     cout << r[0]<< " ";
     cout << r[1]<< " ";
     cout << r[2]<< " ";
     cout << r[3]<< endl;
   }
 }
+

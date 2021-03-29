@@ -42,5 +42,4 @@ void print_q2(result R);
 void print_q3(result R);
 void print_q4(result R);
 void print_q5(result R);
-
 #endif //_QUERY_FUNCS_
